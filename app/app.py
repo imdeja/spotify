@@ -11,6 +11,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
 from typing import List, Tuple
 from app.nearest_neighbors_recommender import predictor, feature_average
+from app.models import db, parse_records, Data
 
 def create_app():
 
@@ -44,5 +45,10 @@ def create_app():
 
         return jsonify(feature_average(input_data))
 
+    @app.route('/data')
+    def data():
+        db_data = Data.query.all()
+        data_response = parse_records(db_data)
+        return jsonify(data_response)
+        
     return app
-    
