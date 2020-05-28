@@ -34,7 +34,8 @@ def create_app():
         data = request.get_json(force=True)
         input_data = data['track_key']
 
-        return jsonify(predictor(input_data))
+        output= predictor(input_data)
+        return jsonify(output[1])
 
     @app.route('/features', methods=['POST'])
     def features():
@@ -44,3 +45,4 @@ def create_app():
         return jsonify(feature_average(input_data))
 
     return app
+    

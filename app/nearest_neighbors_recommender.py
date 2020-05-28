@@ -2,6 +2,7 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
+from flask import jsonify
 
 # load data
 data = pd.read_csv(
@@ -9,7 +10,7 @@ data = pd.read_csv(
 df = data.copy()
 
 dictionary = df[["artist_name", "track_name", "track_key", "track_id"]]
-
+dictionary_no_track_key = df[["artist_name", "track_name", "track_id"]]
 # drop columns for training
 df = df.drop(
     columns=[
@@ -32,10 +33,8 @@ def predictor(track_key):
     '''
     Function to take "track key" of a song of interest from dataframe, and
     return a list of track_ids of the closest related 10songs.
-
     output format:
   ['4fbaKWFRghusXd4bSBvvfN']
-
     '''
 
     # Convert "track_key" to the index of the song
@@ -51,14 +50,21 @@ def predictor(track_key):
     # This is a list of the INDEXES of the songs
     list_of_predictions = neighbor_predictions[1][0].tolist()
 
-    similar_tracks = []
+    similar_tracks_keys = []
     for item in list_of_predictions:
-        track_hash = dictionary['track_id'].iloc[item]
-        similar_tracks.append(track_hash)
+        track_hash = dictionary["track_id"].iloc[item]
+        similar_tracks_keys.append(track_hash)
 
-    return similar_tracks
+    similar_tracks_no_keys = []
+    for val in list_of_predictions:
+        entries = dict(dictionary_no_track_key.iloc[val])
+        similar_tracks_no_keys.append(entries)
 
-# # testing functionality
+    return similar_tracks_keys, similar_tracks_no_keys
+
+    #return similar_tracks 
+
+# testing functionality
 # print(predictor(1))
 
 
@@ -69,7 +75,7 @@ def feature_average(track_key):
     '''
     similar_tracks = predictor(track_key)
     # Return a dataframe with only the ten most similar tracks
-    similar_tracks = data[data["track_id"].isin(similar_tracks)]
+    similar_tracks = data[data["track_id"].isin(similar_tracks[0])]
     similar_tracks = similar_tracks[['acousticness', 'danceability',
                                      'energy', 'instrumentalness',
                                      'liveness', 'mode',
@@ -101,6 +107,4 @@ def feature_average(track_key):
 
 
 # # testing functionality
-#print(feature_average(1))
-#print(predictor(1))
-#'track_key'=1
+# print(feature_average(1))
