@@ -34,7 +34,12 @@ def predictor(track_key):
     Function to take "track key" of a song of interest from dataframe, and
     return a list of track_ids of the closest related 10songs.
     output format:
-  ['4fbaKWFRghusXd4bSBvvfN']
+  [
+    {
+        "artist_name": "French Montana",
+        "track_id": "2RC86WM8zX8v1z4QNtZ2sI",
+        "track_name": "New Goals (French Montana)"
+    },
     '''
 
     # Convert "track_key" to the index of the song
@@ -62,7 +67,6 @@ def predictor(track_key):
 
     return similar_tracks_keys, similar_tracks_no_keys
 
-    #return similar_tracks 
 
 # testing functionality
 # print(predictor(1))

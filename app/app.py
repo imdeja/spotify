@@ -11,13 +11,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
 from typing import List, Tuple
 from app.nearest_neighbors_recommender import predictor, feature_average
-from app.models import db, parse_records, Data
+
+# load data
+data = pd.read_csv(
+    "https://raw.githubusercontent.com/Lambda-Spotify-Song-Suggester-3/datascience/master/kaggle_data/encoded.csv")
+df = data.copy()
+
+dictionary_no_track_key = df[["artist_name", "track_name", "track_id"]]
+dictionary = dictionary_no_track_key.to_json(orient='index')
 
 def create_app():
 
     app = Flask(__name__)
 
-    # accepts the cursor and the row as a tuple and returns a dictionary result and you can object column by name
+    # accepts the cursor and the row as a tuple and returns a dictionary
+    # result and you can object column by name
 
     def dict_factory(cursor, row):
         d = {}
@@ -35,7 +43,7 @@ def create_app():
         data = request.get_json(force=True)
         input_data = data['track_key']
 
-        output= predictor(input_data)
+        output = predictor(input_data)
         return jsonify(output[1])
 
     @app.route('/features', methods=['POST'])
@@ -45,10 +53,8 @@ def create_app():
 
         return jsonify(feature_average(input_data))
 
-    @app.route('/data')
-    def data():
-        db_data = Data.query.all()
-        data_response = parse_records(db_data)
-        return jsonify(data_response)
-        
+    @app.route('/all.json')
+    def list_all():
+        return dictionary
+
     return app
